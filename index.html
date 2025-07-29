@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Tracker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+            background-color: #2f2d2a; /* Pure Black from palette */
+            color: #E0DDAA; /* Soft Muted Gold/Beige for general text */
+        }
+        .container { 
+            background-color: #090040; /* Dark Brown from palette */
+            border-radius: 20px; /* Increased border-radius for softer look */
+            padding: 30px;
+            box-shadow: 0 0 65px #DFD0B8; /* Stronger, darker shadow for depth */
+            /* #DFD0B8 */
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #c47771; /* Vibrant Orange/Coral for headings */
+        }
+        .text-muted { /* Keep muted text readable */
+            color: #E0DDAA; /* Muted text should also be light, perhaps slightly dimmer */
+            opacity: 0.8;
+        }
+        .flash-message { margin-bottom: 15px; }
+
+        /* Bootstrap button overrides for new palette */
+        .btn-primary { 
+            background-color: #ffc6bf; /* Vibrant Orange/Coral */
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; /* Black text for strong contrast */
+            font-weight: bold;
+        }
+        .btn-primary:hover { 
+            background-color: #ffa194; /* Slightly darker orange on hover */
+            border-color: #ffc6bf; 
+            color: #000000; 
+        }
+        .btn-info { 
+            background-color: #ffb6ab; /* Medium Reddish-Brown/Terracotta */
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; /* Soft muted gold/beige text */
+            font-weight: bold;
+        }
+        .btn-info:hover { 
+            background-color: #fa9e8f; /* Darker terracotta on hover */
+            border-color: #ffc6bf; 
+            color: #000000; 
+        }
+
+        /* .btn-success { background-color: #28a745; border-color: #28a745; color: #FFFFFF; } /* Standard success green, white text */
+        /* .btn-success:hover { background-color: #218838; border-color: #218838; } */ 
+        .btn-success { background-color: #FFB6AB; border-color: #BE205A; color: #000000; border: 3px solid #be205a; font-weight: bold; }
+        .btn-success:hover { background-color: #FA9E8F; border-color: #FFC6BF; color: #000000; }
+        .btn-danger { background-color: #dc3545; border-color: #dc3545; color: #FFFFFF; } /* Standard danger red, white text */
+        .btn-danger:hover { background-color: #c82333; border-color: #c82333; }
+        .btn-secondary { 
+            background-color: #4A2C1A; /* Darker brown from palette */
+            border-color: #4A2C1A; 
+            color: #E0DDAA; /* Soft muted gold/beige text */
+        } 
+        .btn-secondary:hover { background-color: #3d2416; border-color: #3d2416; color: #E0DDAA; }
+
+        /* Table styling for dark theme */
+        .table {
+            color: #E0DDAA; /* Text color for table rows */
+        }
+        .table thead.thead-dark th {
+            text-align: center;
+            background-color: #dd9e9a; /* Medium Reddish-Brown/Terracotta for header background */
+            border-color: #be205a; /* Slightly darker for border */
+            color: #000000; /* Very light text for header for good contrast */
+            font-weight: bold;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(245, 245, 220, 0.03); /* Very subtle striping with light alpha */
+        }
+        .table-hover tbody tr:hover {
+            background-color: #090040; /* Lighter hover effect with light alpha */
+            color: #c99f83;
+        }
+        .table td, .table th {
+            border: 3px solid #c99f83; /* Consistent border color with darker brown */
+        }
+
+        /* Flash message alerts - adjust for dark background */
+        .alert-success { background-color: #198754; color: #d1ecf1; border-color: #198754; }
+        .alert-danger { background-color: #dc3545; color: #f8d7da; border-color: #dc3545; }
+        .alert-info { background-color: #B84A2A; color: #E0DDAA; border-color: #B84A2A; } /* Info alert matches btn-info */
+        .alert-warning { background-color: #ffc107; color: #856404; border-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+       <h1 class="mb-4 text-center">Student Performance Tracker</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="mb-3">
+            <a href="{{ url_for('add_new_student') }}" class="btn btn-primary mr-2">Add New Student</a>
+            <a href="{{ url_for('subject_analytics') }}" class="btn btn-info">View Subject Analytics</a>
+        </div>
+
+        {% if students %}
+            <h2 class="mt-4">Registered Students</h2>
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.roll_number }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>
+                                <a href="{{ url_for('student_details', student_id=student.id) }}" class="btn btn-sm btn-info">View Details & Grades</a>
+                                <form action="{{ url_for('delete_student', student_id=student.id) }}" method="POST" style="display:inline-block; margin-left: 5px;" onsubmit="return confirm('Are you sure you want to delete {{ student.name }}? This will also delete all their grades.');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="alert alert-info mt-4">No students registered yet. Click "Add New Student" to get started!</p>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

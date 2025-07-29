@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Analytics</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+            background-color: #2f2d2a; /* Consistent with index.html */
+            color: #E0DDAA; /* Consistent with index.html */
+        }
+        .container { 
+            background-color: #090040; /* Consistent with index.html */
+            border-radius: 20px; /* Consistent with index.html */
+            padding: 30px;
+            box-shadow: 0 0 65px #DFD0B8; /* Consistent with index.html */
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #c47771; /* Consistent with index.html */
+        }
+        .text-muted { 
+            color: #E0DDAA; 
+            opacity: 0.8;
+        }
+
+        /* Bootstrap button overrides - Consistent with index.html */
+        .btn-primary { 
+            background-color: #ffc6bf; 
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; 
+            font-weight: bold;
+        }
+        .btn-primary:hover { 
+            background-color: #ffa194; 
+            border-color: #ffc6bf; 
+            color: #000000; 
+        }
+        .btn-info { 
+            background-color: #ffb6ab; 
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; 
+            font-weight: bold;
+        }
+        .btn-info:hover { 
+            background-color: #fa9e8f; 
+            border-color: #ffc6bf; 
+            color: #000000; 
+        }
+        .btn-success { background-color: #28a745; border-color: #28a745; color: #FFFFFF; }
+        .btn-success:hover { background-color: #218838; border-color: #218838; }
+        .btn-danger { background-color: #dc3545; border-color: #dc3545; color: #FFFFFF; }
+        .btn-danger:hover { background-color: #c82333; border-color: #c82333; }
+        .btn-secondary { 
+            background-color: #ffb6ab; 
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; 
+            font-weight: bold;
+        } 
+        .btn-secondary:hover { background-color: #fa9e8f; border-color: #ffc6bf; color: #000000; }
+
+        /* Accordion styling - Consistent with index.html principles */
+        .accordion .card {
+            background-color: #090040; /* Same as container */
+            border: 3px solid #c99f83; /* Consistent border */
+            color: #E0DDAA; 
+            margin-bottom: 10px; 
+        }
+        .accordion .card-header {
+            background-color: #1A0050; /* Darker blue tone for contrast */
+            border-bottom: 3px solid #c99f83; /* Consistent border */
+            padding: 0; 
+            text-align: center; /* Center align header for consistency */
+        }
+        .accordion .card-header .btn-link {
+            color: #ffb6ab; /* Info button background for links for consistency */
+            text-decoration: none;
+            font-weight: bold;
+            padding: .75rem 1.25rem; 
+            width: 100%; /* Make button span full width of header */
+            display: block; /* Ensure it behaves like a block element */
+        }
+        .accordion .card-header .btn-link:hover {
+            color: #ffa194; /* Darker peach on hover */
+            text-decoration: underline;
+        }
+        .accordion .card-body {
+            background-color: #090040; 
+            border-top: 3px solid #c99f83; /* Consistent border */
+            padding: 1.25rem; /* Standard Bootstrap padding */
+        }
+        .accordion .card-body p {
+            margin-bottom: 0.5rem; /* Small margin for paragraphs */
+        }
+        .accordion .card-body p:last-child {
+            margin-bottom: 0; /* No margin on last paragraph */
+        }
+
+        /* Flash message alerts - Consistent with index.html */
+        .alert-success { background-color: #198754; color: #d1ecf1; border-color: #198754; }
+        .alert-danger { background-color: #dc3545; color: #f8d7da; border-color: #dc3545; }
+        .alert-info { background-color: #B84A2A; color: #E0DDAA; border-color: #B84A2A; }
+        .alert-warning { background-color: #ffc107; color: #856404; border-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">Subject Analytics</h1>
+
+        {% if subject_results %}
+            <div class="accordion" id="subjectAccordion">
+                {% for subject, data in subject_results.items() %}
+                    <div class="card">
+                        <div class="card-header" id="heading{{ loop.index }}">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="true" aria-controls="collapse{{ loop.index }}">
+                                    {{ subject }}
+                                </button>
+                            </h2>
+                        </div>
+
+                        <div id="collapse{{ loop.index }}" class="collapse {% if loop.first %}show{% endif %}" aria-labelledby="heading{{ loop.index }}" data-parent="#subjectAccordion">
+                            <div class="card-body">
+                                <p><strong>Class Average:</strong> {{ "%.2f"|format(data.class_average) }}</p>
+                                <p><strong>Subject Topper:</strong>
+                                    {% if data.topper %}
+                                        {{ data.topper.student_name }} (Roll: {{ data.topper.roll_number }}) - Score: {{ data.topper.score }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="alert alert-info text-center">No subject data available yet. Add some students and grades!</p>
+        {% endif %}
+
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Student List</a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

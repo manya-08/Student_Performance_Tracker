@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details - {{ student.name }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+            background-color: #2f2d2a; /* Consistent with index.html */
+            color: #E0DDAA; /* Consistent with index.html */
+        }
+        .container { 
+            background-color: #090040; /* Consistent with index.html */
+            border-radius: 20px; /* Consistent with index.html */
+            padding: 30px;
+            box-shadow: 0 0 65px #DFD0B8; /* Consistent with index.html */
+        }
+        h1, h2, h3, h4, h5, h6, label {
+            color: #c47771; /* Consistent with index.html */
+        }
+        .text-muted { 
+            color: #E0DDAA; 
+            opacity: 0.8;
+        }
+        .flash-message { margin-bottom: 15px; }
+
+        /* Bootstrap button overrides - Consistent with index.html */
+        .btn-primary { 
+            background-color: #ffc6bf; 
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; 
+            font-weight: bold;
+        }
+        .btn-primary:hover { 
+            background-color: #ffa194; 
+            border-color: #ffc6bf; 
+            color: #000000; 
+        }
+        .btn-info { 
+            background-color: #ffb6ab; 
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; 
+            font-weight: bold;
+        }
+        .btn-info:hover { 
+            background-color: #fa9e8f; 
+            border-color: #ffc6bf; 
+            color: #000000; 
+        }
+        .btn-success { background-color: #ffc6bf; border-color:#be205a; border: 3px solid #be205a; color: #000000; font-weight: bold;}
+        .btn-success:hover { background-color: #ffc6bf; border-color: #ffc6bf; color: #000000;}
+        .btn-danger { background-color: #dc3545; border-color: #dc3545; color: #FFFFFF; }
+        .btn-danger:hover { background-color: #c82333; border-color: #c82333; }
+        .btn-secondary { 
+            background-color: #ffb6ab; 
+            border-color: #be205a; 
+            border: 3px solid #be205a;
+            color: #000000; 
+            font-weight: bold;
+        } 
+        .btn-secondary:hover { background-color: #fa9e8f; border-color: #ffc6bf; color: #000000; }
+
+        /* Card styling - Consistent with index.html principles */
+        .card {
+            background-color: #090040; /* Same as container for seamless look */
+            border: 3px solid #c99f83; /* Consistent border from table cells */
+            color: #E0DDAA; 
+        }
+        .card-header {
+            background-color: #1A0050; /* Darker blue tone for contrast */
+            border-bottom: 3px solid #c99f83; /* Consistent border from table cells */
+            color: #c47771; /* Heading color for card header */
+            font-weight: bold;
+            text-align: center; /* Center align card header for consistency */
+        }
+        .card-body p {
+            font-size: 1.1em; /* Slightly larger text in card body */
+        }
+
+        /* Form control styling - Consistent with add_student.html */
+        .form-control {
+            background-color: #1A0050; 
+            color: #E0DDAA; 
+            border: 2px solid #be205a; 
+        }
+        .form-control::placeholder {
+            color: rgba(224, 221, 170, 0.6); 
+        }
+        .form-control:focus {
+            background-color: #1A0050; 
+            border-color: #ffc6bf; 
+            box-shadow: 0 0 0 0.2rem rgba(255, 198, 191, 0.5); 
+        }
+
+        /* Table styling - Consistent with index.html */
+        .table {
+            color: #E0DDAA; 
+        }
+        .table thead.thead-dark th {
+            text-align: center;
+            background-color: #dd9e9a; 
+            border-color: #be205a; 
+            color: #000000; 
+            font-weight: bold;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(245, 245, 220, 0.03); 
+        }
+        .table-hover tbody tr:hover {
+            background-color: #090040; 
+            color: #c99f83;
+        }
+        .table td, .table th {
+            border: 3px solid #c99f83; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">Student Details</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>{{ student.name }} <small class="text-muted">(Roll: {{ student.roll_number }})</small></h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Overall Average Grade:</strong> {% if average_grade is not none %}{{ "%.2f"|format(average_grade) }}{% else %}N/A{% endif %}</p>
+            </div>
+        </div>
+
+        <h2 class="mt-4 text-center">Grades</h2>
+        {% if grades %}
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grade in grades %}
+                        <tr>
+                            <td>{{ grade.subject }}</td>
+                            <td>{{ grade.score }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_grade', student_id=student.id, grade_id=grade.id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this grade?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="alert alert-info text-center">No grades recorded for this student yet.</p>
+        {% endif %}
+
+        <h3 class="mt-4 text-center">Add/Update Grade</h3>
+        <form method="POST" action="{{ url_for('add_new_grade', student_id=student.id) }}">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="subject">Subject:</label>
+                    <input type="text" class="form-control" id="subject" name="subject" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="score">Score (0-100):</label>
+                    <input type="number" class="form-control" id="score" name="score" min="0" max="100" required>
+                </div>
+                <div class="form-group col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success btn-block">Add/Update Grade</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Student List</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
